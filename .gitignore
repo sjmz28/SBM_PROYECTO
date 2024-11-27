@@ -1,0 +1,15 @@
+*.sjmun
+*.marti
+*.Luis
+*.uvoptx*
+*.uvguix*
+*.map
+*.axf
+*.htm
+*.build_log*
+*.lnp
+*.dep
+*.d
+*.o
+*.lst
+*.crf
