@@ -3,6 +3,7 @@
 
 #include "cmsis_os2.h"
 
+
 typedef struct{
 	float ox;
 	float oy;	
