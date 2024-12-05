@@ -33,13 +33,21 @@ static void init_i2c(void);
 
 static void Th_ace(void *arg);
 
+static MSGQUEUE_OBJ_ACE msg_ace;
+
 // variable I2C
 extern ARM_DRIVER_I2C Driver_I2C1;
 ARM_DRIVER_I2C *I2Cdrv = &Driver_I2C1;
 
-static uint8_t eje_x;
-static uint8_t eje_y;
-static uint8_t eje_z;
+osTimerId_t tim_1seg;
+
+static int16_t accel_x;
+static int16_t accel_y;
+static int16_t accel_z;
+
+static uint8_t temp_data[2]; 
+static int16_t temp_raw;
+
 
 static int Init_MsgQueue_ace(void){
 	id_MsgQueue_ace = osMessageQueueNew(16, sizeof(MSGQUEUE_OBJ_ACE), NULL);
@@ -54,6 +62,7 @@ osMessageQueueId_t get_id_MsgQueue_ace(void){
 }
 
 int init_Th_ace(void){
+	init_i2c();
 	id_Th_ace = osThreadNew(Th_ace, NULL, NULL);
   
 	if(id_Th_ace == NULL)
@@ -80,35 +89,60 @@ osThreadId_t get_id_Th_ace(void){
 return id_Th_ace;
 }
 
+static void tim_1seg_Callback(void* argument){  
+		 osThreadFlagsSet(get_id_Th_ace(), TIM);
+}
+
 static void Th_ace(void *argument){ 
 	
+	uint8_t reg_pwr_mgmt_1[2] = {0x6B,0x00}; // Dirección del registro PWR_MGMT_1
 	uint8_t data[2] = {0x1C, 0x00};// Dirección del registro ACCEL_CONFIG &  Configuración para rango de ±2g
-	I2Cdrv->MasterTransmit(0x68, data, 2, true); // 0x68 es la dirección I2C del MPU-6050 con AD0 a GND
-	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 	
-	
-	uint8_t reg_pwr_mgmt_1 = 0x6B; // Dirección del registro PWR_MGMT_1
-	uint8_t pwr_mgmt_value = 0x01; // Configuración para desactivar sleep y usar PLL eje X como reloj
 	uint8_t dir_x = 0x3B;
-	// Escribir en el registro PWR_MGMT_1
-	I2Cdrv->MasterTransmit(0x68, &reg_pwr_mgmt_1, 1, true); 
+	uint8_t accel_data[6];
+	
+	
+	tim_1seg = osTimerNew(tim_1seg_Callback, osTimerOnce, (void*)0, NULL); 
+	
+	I2Cdrv->MasterTransmit(0x68, reg_pwr_mgmt_1, 2, true); 
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 
-	I2Cdrv->MasterTransmit(0x68, &pwr_mgmt_value, 1, false);
-	
+	I2Cdrv->MasterTransmit(0x68, data, 2, false);  
+	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
+		
 		
   while(1){
-	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
-  // Lectura de los valores en eje X Y Z, para ello primero transmito donde quiero leer los parametros
-	I2Cdrv->MasterTransmit(0x68, &dir_x, 1, true); 
+		
+	I2Cdrv->MasterTransmit(0x68, &dir_x, 1, true);
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 	
-	I2Cdrv ->MasterReceive(0x48, &eje_x, 2, true);	
-	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);		
-	I2Cdrv ->MasterReceive(0x48, &eje_y, 2, true);
+		
+	I2Cdrv->MasterReceive(0x68, accel_data, 6, true);	
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
-	I2Cdrv ->MasterReceive(0x48, &eje_z, 2, false);
-	
+
+	I2Cdrv->MasterReceive(0x68, temp_data, 2, false);
+	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
+		
+	// Convertir los valores de cada eje a 16 bits
+	 accel_x = (int16_t)((accel_data[0] << 8) | accel_data[1]); // X
+	 accel_y = (int16_t)((accel_data[2] << 8) | accel_data[3]); // Y
+	 accel_z = (int16_t)((accel_data[4] << 8) | accel_data[5]); // Z
+
+	// Convertir a unidades físicas en 'g' (para ±2g)
+	 msg_ace.ox = accel_x / 16384.0f;
+	 msg_ace.oy = accel_y / 16384.0f;
+	 msg_ace.oz = accel_z / 16384.0f;
+			
+	// Combinar los bytes en un valor de 16 bits con signo
+	 temp_raw = (int16_t)((temp_data[0] << 8) | temp_data[1]);
+
+	// Convertir el valor crudo a grados Celsius
+	 msg_ace.temp = (temp_raw / 340.0f) + 36.53f;
+		
+		
+	// timer de un segundo 
+	osTimerStart(tim_1seg, 1000U);
+  osThreadFlagsWait(TIM, osFlagsWaitAll, osWaitForever);
 	
 	
 	}

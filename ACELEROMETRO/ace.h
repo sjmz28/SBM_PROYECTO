@@ -12,7 +12,7 @@ typedef struct{
 	
 } MSGQUEUE_OBJ_ACE;
 
-int init_Th_Thread(void);
+int init_Th_ace(void);
 osMessageQueueId_t get_id_MsgQueue_ace(void);
 
 #endif

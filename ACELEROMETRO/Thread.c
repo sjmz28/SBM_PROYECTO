@@ -26,22 +26,12 @@ int init_Th_Thread(void){
   
   return 0;
 }
-static void timer_Callback(void* argument){  
-		cnt++;
-}
+
 
 static void Th_Thread(void *argument){ // funcion del hilo
-	cnt=0;
-	sprintf(msg_lcd.linea1, "      SBM 2024");
-	sprintf(msg_lcd.linea2, " prueba: numero %d", cnt);
-	timer=osTimerNew(timer_Callback,osTimerPeriodic,(void*)0, NULL); 
-	osTimerStart(timer, 1000U);
-	
+
 	while(1){
-		sprintf(msg_lcd.linea1, "      SBM 2024");
-		sprintf(msg_lcd.linea2, "prueba: numero %d", cnt);
-		osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd, NULL, 500);
-	
+
 	}
 
 }

@@ -49,8 +49,8 @@ int main(void)
   /* Initialize CMSIS-RTOS2 */
   osKernelInitialize ();
   
- 
-	init_Th_Thread();
+	init_Th_ace();
+	//init_Th_Thread();
   
   
   osKernelStart();
