@@ -37,6 +37,10 @@ static void Th_ace(void *arg);
 extern ARM_DRIVER_I2C Driver_I2C1;
 ARM_DRIVER_I2C *I2Cdrv = &Driver_I2C1;
 
+static uint8_t eje_x;
+static uint8_t eje_y;
+static uint8_t eje_z;
+
 static int Init_MsgQueue_ace(void){
 	id_MsgQueue_ace = osMessageQueueNew(16, sizeof(MSGQUEUE_OBJ_ACE), NULL);
 	if(id_MsgQueue_ace == NULL)
@@ -85,16 +89,28 @@ static void Th_ace(void *argument){
 	
 	uint8_t reg_pwr_mgmt_1 = 0x6B; // Dirección del registro PWR_MGMT_1
 	uint8_t pwr_mgmt_value = 0x01; // Configuración para desactivar sleep y usar PLL eje X como reloj
-
+	uint8_t dir_x = 0x3B;
 	// Escribir en el registro PWR_MGMT_1
 	I2Cdrv->MasterTransmit(0x68, &reg_pwr_mgmt_1, 1, true); 
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 
 	I2Cdrv->MasterTransmit(0x68, &pwr_mgmt_value, 1, false);
-	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
+	
 		
   while(1){
-
-  }
+	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
+  // Lectura de los valores en eje X Y Z, para ello primero transmito donde quiero leer los parametros
+	I2Cdrv->MasterTransmit(0x68, &dir_x, 1, true); 
+	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
+	
+	I2Cdrv ->MasterReceive(0x48, &eje_x, 2, true);	
+	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);		
+	I2Cdrv ->MasterReceive(0x48, &eje_y, 2, true);
+	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
+	I2Cdrv ->MasterReceive(0x48, &eje_z, 2, false);
+	
+	
+	
+	}
 
 }
