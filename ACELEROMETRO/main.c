@@ -50,7 +50,7 @@ int main(void)
   osKernelInitialize ();
   
 	init_Th_ace();
-	//init_Th_Thread();
+	init_Th_Thread();
   
   
   osKernelStart();

@@ -45,7 +45,6 @@ static int16_t accel_x;
 static int16_t accel_y;
 static int16_t accel_z;
 
-static uint8_t temp_data[2]; 
 static int16_t temp_raw;
 
 
@@ -99,7 +98,7 @@ static void Th_ace(void *argument){
 	uint8_t data[2] = {0x1C, 0x00};// Dirección del registro ACCEL_CONFIG &  Configuración para rango de ±2g
 	
 	uint8_t dir_x = 0x3B;
-	uint8_t accel_data[6];
+	uint8_t accel_data[8];
 	
 	
 	tim_1seg = osTimerNew(tim_1seg_Callback, osTimerOnce, (void*)0, NULL); 
@@ -117,11 +116,9 @@ static void Th_ace(void *argument){
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 	
 		
-	I2Cdrv->MasterReceive(0x68, accel_data, 6, true);	
+	I2Cdrv->MasterReceive(0x68, accel_data, 8, false);	
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 
-	I2Cdrv->MasterReceive(0x68, temp_data, 2, false);
-	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 		
 	// Convertir los valores de cada eje a 16 bits
 	 accel_x = (int16_t)((accel_data[0] << 8) | accel_data[1]); // X
@@ -134,11 +131,15 @@ static void Th_ace(void *argument){
 	 msg_ace.oz = accel_z / 16384.0f;
 			
 	// Combinar los bytes en un valor de 16 bits con signo
-	 temp_raw = (int16_t)((temp_data[0] << 8) | temp_data[1]);
+	 temp_raw = (int16_t)((accel_data[6] << 8) | accel_data[7]);
 
 	// Convertir el valor crudo a grados Celsius
 	 msg_ace.temp = (temp_raw / 340.0f) + 36.53f;
 		
+	// Enviar por cola
+	
+	osMessageQueuePut(get_id_MsgQueue_ace(), &msg_ace, 0U, 0U);
+
 		
 	// timer de un segundo 
 	osTimerStart(tim_1seg, 1000U);
