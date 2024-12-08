@@ -3,7 +3,7 @@
 
 /**
 	HILO DE PRUEBA.
-
+	Muestra en las variables Direccion y Duracion los valores de la pulsacion
 **/
 
 static osThreadId_t id_Th_Thread;
