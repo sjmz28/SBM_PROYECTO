@@ -143,7 +143,8 @@ static void Th_ace(void *argument){
 	// timer de un segundo 
 	osTimerStart(tim_1seg, 1000U);
   osThreadFlagsWait(TIM, osFlagsWaitAll, osWaitForever);
-	
+	osMessageQueuePut(get_id_MsgQueue_ace(), &msg_ace, 0U, 0U);
+
 	
 	}
 
