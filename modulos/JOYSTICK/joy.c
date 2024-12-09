@@ -1,5 +1,9 @@
 #include "joy.h"
 
+#define REB   0x01
+#define IRQ   0x02
+#define CHECK 0x04
+
 /****
 MODULO JOYSTICK:
 Módulo encargado de detectar e identificar una pulsación en el joystick

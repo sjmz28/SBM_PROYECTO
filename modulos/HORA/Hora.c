@@ -2,6 +2,8 @@
 #include <stdio.h>// CMSIS RTOS header file
 #include "Hora.h"
 
+#define SEG 8
+
 osThreadId_t id_Th_hora;                        // thread id
 static uint32_t flag;
 
@@ -10,9 +12,6 @@ static uint32_t flag;
  uint8_t hor;
  uint8_t hab_reloj;
  
-static uint8_t hab_min=0;
-static uint8_t hab_hor=0;
-static uint8_t hab_reset=0;
 
  
  osTimerId_t timer_seg;             // timer de 1 segundo para la hora 
@@ -30,7 +29,6 @@ int Init_Th_hora (void) {
   return(0);
 }
 
-static char linea1[32], linea2[32];
 
 osThreadId_t get_id_Th_Hora(void){
  return id_Th_hora;

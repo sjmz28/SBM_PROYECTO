@@ -4,6 +4,8 @@
 
 static osThreadId_t id_Th_lcd;
 
+#define RESET 0x01
+
 /* Este ya está inicializado en .h ya que lo necesita main*/
 /* Aplica este razonamiento en los siguientes hilos: 
  * si no pinta/no lo usa main, no pinta en .h */

@@ -7,7 +7,7 @@
 #include "stm32f4xx_hal.h"
 #include "cmsis_os2.h"        //Para manejar el RTOS
 
-#define RESET 0x01
+
 
 typedef struct{
 	char linea1[32];
