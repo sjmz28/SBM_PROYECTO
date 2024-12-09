@@ -3,6 +3,7 @@
 #include "Driver_I2C.h"
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "ace.h"
 
@@ -52,10 +53,15 @@ static float oy=0;
 static float oz=0;
 static float temp=0;
 
-static float ox_actual=0;
-static float oy_actual=0;
-static float oz_actual=0;
-static float temp_actual=0;
+static uint8_t ox_actual=0;
+static uint8_t oy_actual=0;
+static uint8_t oz_actual=0;
+static uint8_t temp_actual=0;
+
+static uint8_t ox_pasado=0;
+static uint8_t oy_pasado=0;
+static uint8_t oz_pasado=0;
+static uint8_t temp_pasado=0;
 
 static int16_t temp_raw;
 
@@ -148,19 +154,21 @@ static void Th_ace(void *argument){
 	// Convertir el valor crudo a grados Celsius
 	 temp = (temp_raw / 340.0f) + 36.53f;
 		
+	// Pasarlo a entero
+	ox_actual= floor(ox*10);
+	oy_actual= floor(oy*10);
+	oz_actual= floor(oz*10);
+	temp_actual= floor(temp*10);
+
 	
 	/* Para que no se sature la cola con valores iguales, voy a comparar en cada lectura el valor
 			leido con el valor acual, de manera que solo se guarda en la cola los valores nuevos, ademas, 
 			dado que varia mucho hasta los decimales (posiblemente por la calidad de mis cables) los paso
 			con un decimal de resolucion que es lo que se va observar 
 	*/
-	ox   =  floor(ox * 10)  / 10.0;
-	oy   =  floor(oy * 10)  / 10.0;
-	oz   =  floor(oz * 10) / 10.0;
-	temp =  floor(temp * 10) / 10.0;
 	
   
-	if(fabs(ox-ox_actual)>=0.1 || fabs(oy-oy_actual)>=0.1 || fabs(oz-oz_actual)>=0.1 || fabs(temp-temp_actual)>=0.1){
+	if(abs(ox_pasado-ox_actual)>=1 || abs(oy_pasado-oy_actual)>=1 || abs(oz_pasado-oz_actual)>=1 || abs(temp_pasado-temp_actual)>=1){
 		msg_ace.ox=ox;
 		msg_ace.oy=oy;
 		msg_ace.oz=oz;

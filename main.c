@@ -1,91 +1,76 @@
-#include "main.h"
+@ -1,6 +1,8 @@
+#include "cmsis_os2.h"        //Para manejar el RTOS
+#include "stm32f4xx_hal.h"    //Para manejar el HAL
+#include "Driver_I2C.h"
 #include <stdio.h>
+#include <math.h>
 
-#ifdef _RTE_
-#include "RTE_Components.h"
-#endif
-#ifdef RTE_CMSIS_RTOS2
-#include "cmsis_os2.h"
-#endif
+#include "ace.h"
 
-#ifdef RTE_CMSIS_RTOS2_RTX5
-uint32_t HAL_GetTick(void){
-  static uint32_t ticks = 0U;
-         uint32_t i;
+@ -45,6 +47,16 @@ static int16_t accel_x;
+static int16_t accel_y;
+static int16_t accel_z;
 
-  if(osKernelGetState() == osKernelRunning){
-    return ((uint32_t)osKernelGetTickCount());
-  }
+static float ox=0;
+static float oy=0;
+static float oz=0;
+static float temp=0;
 
-  for(i = (SystemCoreClock >> 14U); i > 0U; i--){
-    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-    __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-  }
-  return ticks++;
-}
-#endif
+static float ox_actual=0;
+static float oy_actual=0;
+static float oz_actual=0;
+static float temp_actual=0;
 
-static void Error_Handler(void);	
-static void SystemClock_Config(void);
+static int16_t temp_raw;
 
-int main(void){
-  HAL_Init();
 
-  SystemClock_Config();
-  SystemCoreClockUpdate();
+@ -126,21 +138,42 @@ static void Th_ace(void *argument){
+	 accel_z = (int16_t)((accel_data[4] << 8) | accel_data[5]); // Z
 
-	if(__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET){
-    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
-    /* Exit Ethernet Phy from low power mode */
-    //ETH_PhyExitFromPowerDownMode();
-  }
+	// Convertir a unidades f?sicas en 'g' (para ?2g)
+	 msg_ace.ox = accel_x / 16384.0f;
+	 msg_ace.oy = accel_y / 16384.0f;
+	 msg_ace.oz = accel_z / 16384.0f;
+	 ox = accel_x / 16384.0f;
+	 oy = accel_y / 16384.0f;
+	 oz = accel_z / 16384.0f;
+			
+	// Combinar los bytes en un valor de 16 bits con signo
+	 temp_raw = (int16_t)((accel_data[6] << 8) | accel_data[7]);
+
+	// Convertir el valor crudo a grados Celsius
+	 msg_ace.temp = (temp_raw / 340.0f) + 36.53f;
+	 temp = (temp_raw / 340.0f) + 36.53f;
+		
+	// Enviar por cola
 	
-#ifdef RTE_CMSIS_RTOS2
-  osKernelInitialize ();
+	osMessageQueuePut(get_id_MsgQueue_ace(), &msg_ace, 0U, 0U);
 
-	init_Th_principal();
+	/* Para que no se sature la cola con valores iguales, voy a comparar en cada lectura el valor
+			leido con el valor acual, de manera que solo se guarda en la cola los valores nuevos, ademas, 
+			dado que varia mucho hasta los decimales (posiblemente por la calidad de mis cables) los paso
+			con un decimal de resolucion que es lo que se va observar 
+	*/
+	ox   =  floor(ox * 10)  / 10.0;
+	oy   =  floor(oy * 10)  / 10.0;
+	oz   =  floor(oz * 10) / 10.0;
+	temp =  floor(temp * 10) / 10.0;
 	
-  osKernelStart();
-#endif
-  while(1){}
-}
+  
+	if(fabs(ox-ox_actual)>=0.1 || fabs(oy-oy_actual)>=0.1 || fabs(oz-oz_actual)>=0.1 || fabs(temp-temp_actual)>=0.1){
+		msg_ace.ox=ox;
+		msg_ace.oy=oy;
+		msg_ace.oz=oz;
+		msg_ace.temp=temp;
+		
+		ox_actual=ox;
+		oy_actual=oy;
+		oz_actual=oz;
+		temp_actual=temp;
+		
+		osMessageQueuePut(get_id_MsgQueue_ace(), &msg_ace, 0U, 0U);
+	}
 
-static void SystemClock_Config(void){
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  __HAL_RCC_PWR_CLK_ENABLE();
-
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 168;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 7;
-  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK){
-    Error_Handler();
-  }
-	
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
-  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK){
-    Error_Handler();
-  }
-  if (HAL_GetREVID() == 0x1001){
-    __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
-  }
-}
-
-
-static void Error_Handler(void){ while(1){} }
-
-#ifdef  USE_FULL_ASSERT
-void assert_failed(uint8_t* file, uint32_t line){ while(1){} }
-#endif
+	// timer de un segundo 
+	osTimerStart(tim_1seg, 1000U);
+  osThreadFlagsWait(TIM, osFlagsWaitAll, osWaitForever);

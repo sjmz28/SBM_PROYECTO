@@ -81,7 +81,7 @@ static void Th_principal(void *argument){
 					osMessageQueuePut(get_id_MsgQueue_led(), &msg_led_main, NULL, 0U);
 					
 					sprintf(msg_lcd_main.linea1, "   ACTIVO -- T:%.1f^", msg_ace_main.temp);
-					sprintf(msg_lcd_main.linea2, "   X:%.1f Y:%.1f Z:%.1f", msg_ace_main.ox, msg_ace_main.oy, msg_ace_main.oz);
+					sprintf(msg_lcd_main.linea2, "   X:%.1f Y:%.1f Z:%.1f",msg_ace_main.ox, msg_ace_main.oy, msg_ace_main.oz);
 			    osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
 				}
 				break;
