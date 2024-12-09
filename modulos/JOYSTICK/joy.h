@@ -4,9 +4,7 @@
 #include "stm32f4xx_hal.h"    //Para manejar el HAL
 #include "cmsis_os2.h"
 
-#define REB   0x01
-#define IRQ   0x02
-#define CHECK 0x04
+
 
 typedef enum{RIGHT, LEFT, UP, DOWN, MIDDLE, NONE}dir_t;
 
