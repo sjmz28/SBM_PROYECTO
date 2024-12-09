@@ -16,7 +16,8 @@ static void Th_Thread(void *arg);
 
 int init_Th_Thread(void){
 	id_Th_Thread = osThreadNew(Th_Thread, NULL, NULL);
-  
+   init_Th_com_rx();
+   init_Th_com_tx();
 	if(id_Th_Thread == NULL)
 		return(-1);
   

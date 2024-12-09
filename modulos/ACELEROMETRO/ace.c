@@ -116,7 +116,7 @@ static void Th_ace(void *argument){
 	uint8_t accel_data[8];
 	
 	
-	tim_1seg = osTimerNew(tim_1seg_Callback, osTimerOnce, (void*)0, NULL); 
+	tim_1seg = osTimerNew(tim_1seg_Callback, osTimerPeriodic, (void*)0, NULL); 
 	
 	I2Cdrv->MasterTransmit(0x68, reg_pwr_mgmt_1, 2, true); 
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
@@ -124,7 +124,7 @@ static void Th_ace(void *argument){
 	I2Cdrv->MasterTransmit(0x68, data, 2, false);  
 	osThreadFlagsWait(I2C, osFlagsWaitAll, osWaitForever);
 		
-		
+	osTimerStart(tim_1seg, 1000U);
   while(1){
 		
 	I2Cdrv->MasterTransmit(0x68, &dir_x, 1, true);
@@ -151,7 +151,7 @@ static void Th_ace(void *argument){
 	// Convertir el valor crudo a grados Celsius
 	 temp = (temp_raw / 340.0f) + 36.53f;
 		
-	// Pasarlo a entero
+
 	ox= floor(ox*10)/10;
 	oy= floor(oy*10)/10;
 	oz= floor(oz*10)/10;
@@ -178,10 +178,9 @@ static void Th_ace(void *argument){
 		osMessageQueuePut(get_id_MsgQueue_ace(), &msg_ace, 0U, 0U);
 	}
 
-	// timer de un segundo 
-	osTimerStart(tim_1seg, 1000U);
+
   osThreadFlagsWait(TIM, osFlagsWaitAll, osWaitForever);
-	osMessageQueuePut(get_id_MsgQueue_ace(), &msg_ace, 0U, 0U);
+	
 
 	
 	}

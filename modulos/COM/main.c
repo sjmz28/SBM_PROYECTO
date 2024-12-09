@@ -47,7 +47,7 @@ int main(void)
   osKernelInitialize ();
   
 	init_Th_Thread();
-  init_Th_com();
+
 	
   osKernelStart();
 #endif
