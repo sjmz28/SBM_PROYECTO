@@ -163,7 +163,6 @@ static void Th_ace(void *argument){
 			dado que varia mucho hasta los decimales (posiblemente por la calidad de mis cables) los paso
 			con un decimal de resolucion que es lo que se va observar 
 	*/
-	
   
 	if(fabs(ox-ox_actual)>=0.1 || fabs(oy-oy_actual)>=0.1  || fabs(oz-oz_actual)>=0.1  || fabs(temp-temp_actual)>=0.1 ){
 		msg_ace.ox=ox;
