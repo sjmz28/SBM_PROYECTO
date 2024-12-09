@@ -53,15 +53,12 @@ static float oy=0;
 static float oz=0;
 static float temp=0;
 
-static uint8_t ox_actual=0;
-static uint8_t oy_actual=0;
-static uint8_t oz_actual=0;
-static uint8_t temp_actual=0;
+static float ox_actual=0;
+static float oy_actual=0;
+static float oz_actual=0;
+static float temp_actual=0;
 
-static uint8_t ox_pasado=0;
-static uint8_t oy_pasado=0;
-static uint8_t oz_pasado=0;
-static uint8_t temp_pasado=0;
+
 
 static int16_t temp_raw;
 
@@ -155,10 +152,10 @@ static void Th_ace(void *argument){
 	 temp = (temp_raw / 340.0f) + 36.53f;
 		
 	// Pasarlo a entero
-	ox_actual= floor(ox*10);
-	oy_actual= floor(oy*10);
-	oz_actual= floor(oz*10);
-	temp_actual= floor(temp*10);
+	ox= floor(ox*10)/10;
+	oy= floor(oy*10)/10;
+	oz= floor(oz*10)/10;
+	temp= floor(temp*10)/10;
 
 	
 	/* Para que no se sature la cola con valores iguales, voy a comparar en cada lectura el valor
@@ -168,7 +165,7 @@ static void Th_ace(void *argument){
 	*/
 	
   
-	if(abs(ox_pasado-ox_actual)>=1 || abs(oy_pasado-oy_actual)>=1 || abs(oz_pasado-oz_actual)>=1 || abs(temp_pasado-temp_actual)>=1){
+	if(fabs(ox-ox_actual)>=0.1 || fabs(oy-oy_actual)>=0.1  || fabs(oz-oz_actual)>=0.1  || fabs(temp-temp_actual)>=0.1 ){
 		msg_ace.ox=ox;
 		msg_ace.oy=oy;
 		msg_ace.oz=oz;
