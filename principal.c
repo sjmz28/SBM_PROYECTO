@@ -20,7 +20,7 @@ float oz_ref=1;
 MSGQUEUE_OBJ_ACE msg_ace_main;
 MSGQUEUE_OBJ_JOY msg_joy_main;
 MSGQUEUE_OBJ_LCD msg_lcd_main;
-MSGQUEUE_OBJ_LED msg_led_main;
+//MSGQUEUE_OBJ_LED msg_led_main;
 
 typedef enum {
     REPOSO,     
@@ -74,11 +74,25 @@ static void Th_principal(void *argument){
 			case ACTIVO: // CHECK, Queda el buffer circular
 				if((osMessageQueueGet(get_id_MsgQueue_ace(), &msg_ace_main, NULL, 100U) == osOK)){
 					
-					msg_led_main.led=0;
-					if(msg_ace_main.oz > oz_ref) msg_led_main.led |= (1 << 2);
-					if(msg_ace_main.oy > oy_ref) msg_led_main.led |= (1 << 1);
-					if(msg_ace_main.ox > ox_ref) msg_led_main.led |= (1 << 0);
-					osMessageQueuePut(get_id_MsgQueue_led(), &msg_led_main, NULL, 0U);
+	
+					if(msg_ace_main.oz > oz_ref){
+					osThreadFlagsSet(get_id_Th_led(), LED1);
+					} else{
+					osThreadFlagsSet(get_id_Th_led(), nLED1);
+					}
+					
+					if(msg_ace_main.oy > oy_ref){
+					osThreadFlagsSet(get_id_Th_led(), LED2);
+					} else{
+					osThreadFlagsSet(get_id_Th_led(), nLED2);
+					}
+					
+					if(msg_ace_main.ox > ox_ref){
+					osThreadFlagsSet(get_id_Th_led(), LED3);
+					} else{
+					osThreadFlagsSet(get_id_Th_led(), nLED3);
+					}  
+				
 					
 					sprintf(msg_lcd_main.linea1, "   ACTIVO -- T:%.1f ^", msg_ace_main.temp);
 					sprintf(msg_lcd_main.linea2, "   X:%.1f Y:%.1f Z:%.1f",msg_ace_main.ox, msg_ace_main.oy, msg_ace_main.oz);
