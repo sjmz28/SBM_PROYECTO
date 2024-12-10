@@ -43,30 +43,29 @@ osThreadId_t get_id_Th_led(void){
 }
 
 static void Th_led(void *argument){ // funcion del hilo
-	
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
  
   while(1){
-	flags = osThreadFlagsWait(LED1 | LED2 | LED3, osFlagsWaitAny, osWaitForever);
+	flags = osThreadFlagsWait(LED1 | LED2 | LED3 | nLED1 | nLED2 | nLED3, osFlagsWaitAny, osWaitForever);
 		
 		if(flags&LED1){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	} //else
-  	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		
+	} 
 		if(flags&LED2){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
-	} else 
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
-
-	
+	}
 		if(flags&LED3){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
-	}else
+	}
+		if(flags&nLED1){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+	} 
+		if(flags&nLED2){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+	}
+		if(flags&nLED3){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-	
+	}
+		
 	}
 }
 

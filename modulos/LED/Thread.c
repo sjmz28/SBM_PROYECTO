@@ -25,10 +25,9 @@ int init_Th_Thread(void){
 }
 
 static void timer_Callback(void* argument){  
-	  leds+= leds!=20;
-		leds*= leds<20;
-	
-	osThreadFlagsSet(get_id_Th_led,LED1);
+
+	leds += leds!=20;
+	leds *= leds<20;
 	
 	
 }
@@ -42,6 +41,24 @@ static void Th_Thread(void *argument){ // funcion del hilo
 	
   while(1){
 		
+		if(leds>3){
+		osThreadFlagsSet(get_id_Th_led(), LED1);
+		} else{
+		osThreadFlagsSet(get_id_Th_led(), nLED1);
+		}
+		
+		
+		if(leds>8){
+		osThreadFlagsSet(get_id_Th_led(), LED2);
+		} else {
+	  osThreadFlagsSet(get_id_Th_led(), nLED2);
+		}
+		
+	  if(leds>14){
+		osThreadFlagsSet(get_id_Th_led(), LED3);
+		} else {
+	  osThreadFlagsSet(get_id_Th_led(), nLED3);
+		}
 		
   }
 
