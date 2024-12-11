@@ -9,6 +9,8 @@ MODULO Principal:
 
 */
 
+static void agregarMedida(buf_medidas* buf);
+
 extern uint8_t hor;                                  
 extern uint8_t min;
 extern uint8_t seg;
@@ -26,8 +28,8 @@ float aux_ox_ref;
 float aux_oy_ref;
 float aux_oz_ref;
 
-float ox_ref=0;
-float oy_ref=0;
+float ox_ref=1;
+float oy_ref=1;
 float oz_ref=1;
 
 MSGQUEUE_OBJ_ACE msg_ace_main;
@@ -69,6 +71,19 @@ int init_Th_principal(void){
 		return(-1);
   
 	return(0);
+}
+
+	static void agregarMedida(buf_medidas* buf){
+	
+	if(buf->cnt == 10){
+    buf->ini = (buf->ini +1)%10;
+    buf->cnt--;
+  }
+  
+  sprintf(buf->medidas[buf->fin].mesure, "%.2u:%.2u:%.2u--Tm:%.1f-Ax:%.1f-Ay:%.1f-Az:%.1f%%\n\r", hor, min, seg, msg_ace_main.temp, msg_ace_main.ox, msg_ace_main.oy,msg_ace_main.oz);
+  buf->fin = (buf->fin + 1)%10;
+  buf->cnt++;
+	
 }
 
 static void Th_principal(void *argument){
@@ -117,6 +132,7 @@ static void Th_principal(void *argument){
 					osThreadFlagsSet(get_id_Th_led(), nLED3);
 					}  
 					
+			  agregarMedida(&buffer_medidas);
 					
 				}
 				if((osMessageQueueGet(get_id_MsgQueue_joy(), &msg_joy_main, NULL, 100U) == osOK)){
@@ -371,4 +387,6 @@ static void Th_principal(void *argument){
 		
 	}
 }
+	
+
 }
