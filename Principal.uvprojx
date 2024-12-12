@@ -463,6 +463,16 @@
               <FileType>5</FileType>
               <FilePath>.\modulos\LCD\Arial12x12.h</FilePath>
             </File>
+            <File>
+              <FileName>com.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\modulos\COM\com.c</FilePath>
+            </File>
+            <File>
+              <FileName>com.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\modulos\COM\com.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

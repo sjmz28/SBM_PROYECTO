@@ -8,9 +8,18 @@
 #include "joy.h"
 #include "lcd.h"
 #include "led.h"
+#include "com.h"
+// COMANDOS
+#define HORA 0x20
+#define AX 0x25
+#define AY 0x26
+#define AZ 0x27
+#define MEDIDAS 0x55
+#define DELETE 0x60
 
+#define MEDIDA_LEN 42
 typedef struct{
-  char mesure[36];
+  char mesure[MEDIDA_LEN];
 }mesure_t;
 
 typedef struct{
@@ -21,5 +30,7 @@ typedef struct{
 }buf_medidas;
 
 int init_Th_principal(void);
+
+
 
 #endif

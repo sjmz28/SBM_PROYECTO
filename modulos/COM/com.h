@@ -23,16 +23,4 @@ osMessageQueueId_t get_id_MsgQueue_com_tx(void);
 #define SOH 0x01
 #define EOT 0xFE
 
-// comandos del PC al sistema
-#define HORA 0x20                 // establece la hora
-#define TEMPERATURA 0x25    // establede el vlaor de temperatura de referencia
-#define ALL 0x55                     // todas las medidas
-#define CLEAN 0x60                 // borrar todas las medidas
-
-// comandos del sistema al PC
-#define PUESTA 0xDF             // puesta en hora
-#define TEM_REF 0xDA            // ?????
-#define MEDIDA 0xAF                // devuelve el valor de la medida almacenada
-#define CLEAN_DONE 0x9F                // borra todas las medidas
-
 #endif

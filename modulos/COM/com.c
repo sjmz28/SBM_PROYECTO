@@ -106,25 +106,25 @@ void Th_com_rx(void* argument){
           msg_com_RX.LEN= byte;
     }
     else if(msg_com_RX.SOH_type !=0  && msg_com_RX.EOT_type == 0 && msg_com_RX.LEN !=0 && msg_com_RX.CMD !=0 && msg_com_RX.payOK==0){
-         if(byte!=EOT){
-            msg_com_RX.payload[cnt] = byte;
-            cnt++;
-         }
-				 else{
-						msg_com_RX.payOK=1;
-            cnt=0;
-            msg_com_RX.EOT_type= EOT;
-            osMessageQueuePut(get_id_MsgQueue_com_rx(), &msg_com_RX, NULL, 0U);
-            for(int i = 0; i <msg_com_RX.LEN-3; i++){
-							msg_com_RX.payload[i] = 0x00;
-						}
-            msg_com_RX.CMD=0;
-            msg_com_RX.EOT_type=0;
-            msg_com_RX.LEN=0;
-            msg_com_RX.SOH_type = 0;
-            msg_com_RX.payOK=0;
-              
-         }
+			 if(byte!=EOT){
+					msg_com_RX.payload[cnt] = byte;
+					cnt++;
+			 }
+			 else{
+					msg_com_RX.payOK=1;
+					cnt=0;
+					msg_com_RX.EOT_type= EOT;
+					osMessageQueuePut(get_id_MsgQueue_com_rx(), &msg_com_RX, NULL, 0U);
+					for(int i = 0; i <msg_com_RX.LEN-3; i++){
+						msg_com_RX.payload[i] = 0x00;
+					}
+					msg_com_RX.CMD=0;
+					msg_com_RX.EOT_type=0;
+					msg_com_RX.LEN=0;
+					msg_com_RX.SOH_type = 0;
+					msg_com_RX.payOK=0;
+						
+			 }
      }
 	}
 }
@@ -150,11 +150,8 @@ void Th_com_tx(void* argument){
       USARTdrv->Send(&msg_com_TX.EOT_type, 1);
       osThreadFlagsWait(FLAG_USART, osFlagsWaitAny, osWaitForever);
     
-  }
-
-}
-
-
+		}
+	}
 }
 
 
