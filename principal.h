@@ -17,7 +17,7 @@
 #define MEDIDAS 0x55
 #define DELETE 0x60
 
-#define MEDIDA_LEN 42
+#define MEDIDA_LEN 44
 typedef struct{
   char mesure[MEDIDA_LEN];
 }mesure_t;

@@ -12,6 +12,9 @@ MODULO Principal:
 static void agregarMedida(buf_medidas* buf);
 static void procesarComandosRS232(void);
 
+static uint8_t i;
+static uint8_t j;
+
 extern uint8_t hor;                                  
 extern uint8_t min;
 extern uint8_t seg;
@@ -143,11 +146,11 @@ static void Th_principal(void *argument){
 			case PROG:
 				//*  MANEJO DE LA HORA Y ACE MEDIANTE JOY*//
 				if(!cnt_prg){
-					sprintf(msg_lcd_main.linea1, "       ---P&D---");
-					sprintf(msg_lcd_main.linea2, "       %.2u:%.2u:%.2u ", aux_hor, aux_min, aux_seg);
+					sprintf(msg_lcd_main.linea1, "      ---P&D---");
+					sprintf(msg_lcd_main.linea2, "      %.2u:%.2u:%.2u ", aux_hor, aux_min, aux_seg);
 					osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
 				}else{
-					sprintf(msg_lcd_main.linea1, "       ---P&D---");
+					sprintf(msg_lcd_main.linea1, "      ---P&D---");
 					sprintf(msg_lcd_main.linea2, "   X:%.1f Y:%.1f Z:%.1f",aux_ox_ref, aux_oy_ref, aux_oz_ref);
 					osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
 				}
@@ -301,8 +304,8 @@ static void agregarMedida(buf_medidas* buf){
 	
 }
 static void clean_buffer(void){
-  for(int i = 0; i < buffer_medidas.cnt; i++){
-    for(int j = 0; j < 36; j++){
+  for(i = 0; i < buffer_medidas.cnt; i++){
+    for(j = 0; j < 36; j++){
     buffer_medidas.medidas[i].mesure[j] = 0x00;
   }
 }
@@ -399,37 +402,3 @@ static void procesarComandosRS232(void){
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

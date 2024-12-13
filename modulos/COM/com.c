@@ -16,6 +16,7 @@ MSGQUEUE_OBJ_COM msg_com_RX;
 MSGQUEUE_OBJ_COM msg_com_TX;
 
 /*---------FUNCIONES------------*/
+static uint8_t a;
 static void init_USART(void);
 static void CallBack_USART3(uint32_t event);
 void Th_com_rx (void *argument); 
@@ -115,8 +116,8 @@ void Th_com_rx(void* argument){
 					cnt=0;
 					msg_com_RX.EOT_type= EOT;
 					osMessageQueuePut(get_id_MsgQueue_com_rx(), &msg_com_RX, NULL, 0U);
-					for(int i = 0; i <msg_com_RX.LEN-3; i++){
-						msg_com_RX.payload[i] = 0x00;
+					for(a = 0; a <msg_com_RX.LEN-3; a++){
+						msg_com_RX.payload[a] = 0x00;
 					}
 					msg_com_RX.CMD=0;
 					msg_com_RX.EOT_type=0;
