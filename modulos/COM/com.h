@@ -4,6 +4,7 @@
 #include "cmsis_os2.h"   
 #include "Driver_USART.h"
 
+
 typedef struct {
     uint8_t SOH_type;
     uint8_t CMD;

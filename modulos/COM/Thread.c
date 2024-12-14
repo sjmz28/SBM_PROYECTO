@@ -26,23 +26,21 @@ int init_Th_Thread(void){
   return 0;
 }
 
-static void timer_Callback(void* argument){  
-		cnt++;
-}
+
 static void Th_Thread(void *argument){ // funcion del hilo
 
 	osStatus_t status;
 	// while para controlar la recepcion 
-	/*
+	
   while(1){
     status = osMessageQueueGet(get_id_MsgQueue_com_rx(), &msg_com_rx, NULL, 1000U);
 		if(status==osOK){
 			msg_com_rx=msg_com_rx; // para poder poner el breakpoint
 		}
   }
-	
+	/*
 	// while para controlar la transmision 
-	*/
+	
 	msg_com_tx.SOH_type=0x01;
 	msg_com_tx.CMD = 0x02; 
 	msg_com_tx.LEN = 0x0A;
@@ -55,7 +53,7 @@ static void Th_Thread(void *argument){ // funcion del hilo
 			cnt++;
 			osDelay(3000U);
 		}
-  
+  */
 	
 }
 
