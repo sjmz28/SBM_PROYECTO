@@ -32,8 +32,8 @@ float aux_ox_ref;
 float aux_oy_ref;
 float aux_oz_ref;
 
-float ox_ref=1;
-float oy_ref=1;
+float ox_ref=0;
+float oy_ref=0;
 float oz_ref=1;
 
 MSGQUEUE_OBJ_ACE msg_ace_main;
@@ -90,7 +90,7 @@ static void Th_principal(void *argument){
 		
 		switch(estado){
 		
-			case REPOSO: //CHECK
+			case REPOSO: 
 				sprintf(msg_lcd_main.linea1, " + + SBM 2024 + +");
 				sprintf(msg_lcd_main.linea2, "       %.2u:%.2u:%.2u ", hor, min, seg);
 			  osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
@@ -102,17 +102,17 @@ static void Th_principal(void *argument){
 				}
 				break;
 			
-			case ACTIVO: // CHECK, Queda el buffer circular
+			case ACTIVO: 
 				if((osMessageQueueGet(get_id_MsgQueue_ace(), &msg_ace_main, NULL, 100U) == osOK)){
 					
 					sprintf(msg_lcd_main.linea1, "   ACTIVO -- T:%.1f ^", msg_ace_main.temp);
 					sprintf(msg_lcd_main.linea2, "   X:%.1f Y:%.1f Z:%.1f",msg_ace_main.ox, msg_ace_main.oy, msg_ace_main.oz);
 			    osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
 				if(msg_ace_main.oz > oz_ref){
-					osThreadFlagsSet(get_id_Th_led(), LED1);
+					osThreadFlagsSet(get_id_Th_led(), LED3);
 				} 
 				else{
-					osThreadFlagsSet(get_id_Th_led(), nLED1);
+					osThreadFlagsSet(get_id_Th_led(), nLED3);
 				}	
 				if(msg_ace_main.oy > oy_ref){
 					osThreadFlagsSet(get_id_Th_led(), LED2);
@@ -121,10 +121,10 @@ static void Th_principal(void *argument){
 					osThreadFlagsSet(get_id_Th_led(), nLED2);
 				}	
 				if(msg_ace_main.ox > ox_ref){
-					osThreadFlagsSet(get_id_Th_led(), LED3);
+					osThreadFlagsSet(get_id_Th_led(), LED1);
 				} 
 				else{
-					osThreadFlagsSet(get_id_Th_led(), nLED3);
+					osThreadFlagsSet(get_id_Th_led(), nLED1);
 				}  	
 			  agregarMedida(&buffer_medidas);
 				}
@@ -298,7 +298,7 @@ static void agregarMedida(buf_medidas* buf){
     buf->cnt--;
   }
   
-  sprintf(buf->medidas[buf->fin].mesure, "%.2u:%.2u:%.2u--Tm:%.1f-Ax:%.1f-Ay:%.1f-Az:%.1f%%\n\r", hor, min, seg, msg_ace_main.temp, msg_ace_main.ox, msg_ace_main.oy,msg_ace_main.oz);
+  sprintf(buf->medidas[buf->fin].mesure, "%.2u:%.2u:%.2u--Tm:%.1f-Ax:%.1f-Ay:%.1f-Az:%.1f\n\r", hor, min, seg, msg_ace_main.temp, msg_ace_main.ox, msg_ace_main.oy,msg_ace_main.oz);
   buf->fin = (buf->fin + 1)%10;
   buf->cnt++;
 	
@@ -331,12 +331,12 @@ static void procesarComandosRS232(void){
 				break;
 			case AX:
 				if(sscanf(msg_com_rx_main.payload, "%f", &aux) == 1){
-					if(aux>= 2 && aux<=2){
+					if(aux>= -2 && aux<=2){
 						ox_ref=aux;
 						msg_com_tx_main.SOH_type = SOH;
 						msg_com_tx_main.CMD = 0xDA;
 						msg_com_tx_main.LEN= 0x08; 
-						sprintf(msg_com_tx_main.payload, "%.1f", aux);
+						sprintf(msg_com_tx_main.payload, "%.2f\n\r", aux);
 						msg_com_tx_main.EOT_type = EOT;
 						osMessageQueuePut(get_id_MsgQueue_com_tx(), &msg_com_tx_main, NULL, 0U);
 					}
@@ -344,12 +344,12 @@ static void procesarComandosRS232(void){
 				break;
 			case AY:
 				if(sscanf(msg_com_rx_main.payload, "%f", &aux) == 1){
-					if(aux>= 2 && aux<=2){
+					if(aux>= -2 && aux<=2){
 						oy_ref=aux;
 						msg_com_tx_main.SOH_type = SOH;
 						msg_com_tx_main.CMD = 0xD9;
 						msg_com_tx_main.LEN= 0x08; 
-						sprintf(msg_com_tx_main.payload, "%.1f", aux);
+						sprintf(msg_com_tx_main.payload, "%.2f\n\r", aux);
 						msg_com_tx_main.EOT_type = EOT;
 						osMessageQueuePut(get_id_MsgQueue_com_tx(), &msg_com_tx_main, NULL, 0U);
 					}
@@ -357,20 +357,14 @@ static void procesarComandosRS232(void){
 				break;
 			case AZ:
 				if(sscanf(msg_com_rx_main.payload, "%f", &aux) == 1){
-					if(aux>= 2 && aux<=2){
+					if(aux>= -2 && aux<=2){
 						oz_ref=aux;
 						msg_com_tx_main.SOH_type = SOH;
 						msg_com_tx_main.CMD = 0xD8;
 						msg_com_tx_main.LEN= 0x08; 
-						sprintf(msg_com_tx_main.payload, "%.1f", aux);
+						sprintf(msg_com_tx_main.payload, "%.2f\n\r", aux);
 						msg_com_tx_main.EOT_type = EOT;
 						osMessageQueuePut(get_id_MsgQueue_com_tx(), &msg_com_tx_main, NULL, 0U);
-						while(cnt_aux < buffer_medidas.cnt){
-							memcpy(msg_com_tx_main.payload, buffer_medidas.medidas[cnt_aux].mesure, 36);
-							cnt_aux++;
-							msg_com_tx_main.EOT_type = EOT;
-							osMessageQueuePut(get_id_MsgQueue_com_tx(), &msg_com_tx_main, NULL, 0U);
-						 }
 					}
 				}
 				break;
