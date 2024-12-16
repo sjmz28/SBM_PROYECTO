@@ -305,14 +305,14 @@ static void agregarMedida(buf_medidas* buf){
 }
 static void clean_buffer(void){
   for(i = 0; i < buffer_medidas.cnt; i++){
-    for(j = 0; j < 36; j++){
+    for(j = 0; j < MEDIDA_LEN; j++){
     buffer_medidas.medidas[i].mesure[j] = 0x00;
   }
 }
 }
 
 static void procesarComandosRS232(void){
-	uint8_t h, m, s, cnt_aux;
+	uint8_t h, m, s, cnt_aux=0;
 	float aux;
 	if (osMessageQueueGet(get_id_MsgQueue_com_rx(), &msg_com_rx_main, NULL, 100U) == osOK) {
 		switch(msg_com_rx_main.CMD){
@@ -371,19 +371,21 @@ static void procesarComandosRS232(void){
 			case MEDIDAS:
 				msg_com_tx_main.SOH_type = SOH;
 				msg_com_tx_main.CMD=0xD9;
-				msg_com_tx_main.LEN=0x27;
+				msg_com_tx_main.LEN=sizeof(msg_com_tx_main.payload)+4;
 				while(cnt_aux < buffer_medidas.cnt){
 					memcpy(msg_com_tx_main.payload, buffer_medidas.medidas[cnt_aux].mesure, MEDIDA_LEN);
 					cnt_aux++;
 					msg_com_tx_main.EOT_type=EOT;
 					osMessageQueuePut(get_id_MsgQueue_com_tx(), &msg_com_tx_main, NULL, 0U);
 				}
+				cnt_aux=0;
 				break;
 			case DELETE:
 				clean_buffer();
 				msg_com_tx_main.SOH_type = SOH;
 				msg_com_tx_main.CMD=0x9F;
-				memset(msg_com_tx_main.payload, 0, sizeof(msg_com_tx_main.payload));
+
+			  memset(msg_com_tx_main.payload, 0, sizeof(msg_com_tx_main.payload));
 				msg_com_tx_main.LEN=0x04;
 				msg_com_tx_main.EOT_type=EOT;
 				osMessageQueuePut(get_id_MsgQueue_com_tx(), &msg_com_tx_main, NULL, 0U);

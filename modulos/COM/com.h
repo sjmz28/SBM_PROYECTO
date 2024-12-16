@@ -9,7 +9,7 @@ typedef struct {
     uint8_t SOH_type;
     uint8_t CMD;
     uint8_t LEN;
-    char payload[50]; // Asumiendo un tamaño máximo para simplificar
+    char payload[100]; // Asumiendo un tamaño máximo para simplificar
     uint8_t payOK;
     uint8_t EOT_type;
 } MSGQUEUE_OBJ_COM;

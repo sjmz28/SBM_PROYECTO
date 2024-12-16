@@ -141,8 +141,8 @@ void Th_com_tx(void* argument){
       osThreadFlagsWait(FLAG_USART, osFlagsWaitAny, osWaitForever);
       USARTdrv->Send(&msg_com_TX.LEN, 1);
       osThreadFlagsWait(FLAG_USART, osFlagsWaitAny, osWaitForever);
-      USARTdrv->Send(&msg_com_TX.LEN, 1);
-      osThreadFlagsWait(FLAG_USART, osFlagsWaitAny, osWaitForever);
+//      USARTdrv->Send(&msg_com_TX.LEN, 1);
+//      osThreadFlagsWait(FLAG_USART, osFlagsWaitAny, osWaitForever);
       while(cnt<=(msg_com_TX.LEN-3)){
          USARTdrv->Send(&msg_com_TX.payload[cnt], 1);
          osThreadFlagsWait(FLAG_USART, osFlagsWaitAny, osWaitForever);
