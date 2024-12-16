@@ -42,6 +42,10 @@ MSGQUEUE_OBJ_LCD msg_lcd_main;
 MSGQUEUE_OBJ_COM msg_com_rx_main;
 MSGQUEUE_OBJ_COM msg_com_tx_main;
 
+unsigned char horas_or;
+
+char subrayado[20]; // Ajustar tamaño si es necesario
+
 buf_medidas buffer_medidas;
 
 typedef enum {
@@ -155,6 +159,44 @@ static void Th_principal(void *argument){
 					osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
 				}
 				
+				if(!cnt_prg){
+					if(cnt_hora==0){
+						osDelay(300U);
+			      sprintf(msg_lcd_main.linea2, "      __:%.2u:%.2u ", aux_min, aux_seg);
+					  osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
+						osDelay(300U);
+					} else if (cnt_hora==1){
+						osDelay(300U);
+						sprintf(msg_lcd_main.linea1, "      ---P&D---");
+						sprintf(msg_lcd_main.linea2, "      %.2u:__:%.2u ", aux_hor, aux_seg);
+						osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
+						osDelay(300U);						
+					} else if(cnt_hora==2){
+						osDelay(300U);
+						sprintf(msg_lcd_main.linea1, "      ---P&D---");
+						sprintf(msg_lcd_main.linea2, "      %.2u:%.2u:__ ", aux_hor, aux_min);
+						osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
+						osDelay(300U);						
+					}
+				} else {
+					if(cnt_ace==0){
+						osDelay(300U);
+				  sprintf(msg_lcd_main.linea2, "   X:__ Y:%.1f Z:%.1f", aux_oy_ref, aux_oz_ref);
+					osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
+						osDelay(300U);
+					} else if (cnt_ace==1){
+						osDelay(300U);
+					  sprintf(msg_lcd_main.linea2, "   X:%.1f Y:__ Z:%.1f",aux_ox_ref, aux_oz_ref);
+						osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
+						osDelay(300U);						
+					} else if(cnt_ace==2){
+						osDelay(300U);
+					  sprintf(msg_lcd_main.linea2, "   X:%.1f Y:%.1f Z:__",aux_ox_ref, aux_oy_ref);
+						osMessageQueuePut(get_id_MsgQueue_lcd(), &msg_lcd_main, NULL, 0U);
+						osDelay(300U);						
+					}
+				}
+				
 				if((osMessageQueueGet(get_id_MsgQueue_joy(), &msg_joy_main, NULL, 100U) == osOK)){
 					if((msg_joy_main.dir == MIDDLE) && (msg_joy_main.dur == 0)){ 
 						if(!cnt_prg){
@@ -184,25 +226,25 @@ static void Th_principal(void *argument){
 									cnt_hora=2;
 								}	
 							}
-							if(cnt_hora==0){
+							if(cnt_hora==0){ //hora
 								if((msg_joy_main.dir == UP) && (msg_joy_main.dur == 0)){		
 									aux_hor += aux_hor != 24;
 									aux_hor *= aux_hor != 24;	
 								}	
 							}	
-							if (cnt_hora==1){	
+							if (cnt_hora==1){	//min
 								if((msg_joy_main.dir == UP) && (msg_joy_main.dur == 0)){ 
 									aux_min += aux_min != 60;
 									aux_min *= aux_min != 60;	
 								}	
 							}	
-							if (cnt_hora==2){	
+							if (cnt_hora==2){	 //seg
 								if((msg_joy_main.dir == UP) && (msg_joy_main.dur == 0)){ 
 									aux_seg += aux_seg != 60;
 									aux_seg *= aux_seg != 60;				
 								}	
 							}			
-							if(cnt_hora==0){
+							if(cnt_hora==0){ //hora
 								if((msg_joy_main.dir == DOWN) && (msg_joy_main.dur == 0)){
 									if(aux_hor!=0){
 										aux_hor--;
@@ -212,7 +254,7 @@ static void Th_principal(void *argument){
 									}
 								}	
 							}	
-							else if (cnt_hora==1){	
+							else if (cnt_hora==1){ //min	
 								if((msg_joy_main.dir == DOWN) && (msg_joy_main.dur == 0)){ 
 									if(aux_min!=0){
 										aux_min--;
@@ -222,7 +264,7 @@ static void Th_principal(void *argument){
 									}
 								}	
 							}	
-							else if (cnt_hora==2){	
+							else if (cnt_hora==2){	//seg
 								if((msg_joy_main.dir == DOWN) && (msg_joy_main.dur == 0)){ 							
 									if(aux_seg!=0){
 									aux_seg--;
