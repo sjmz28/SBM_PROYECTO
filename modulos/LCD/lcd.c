@@ -22,10 +22,10 @@ osMessageQueueId_t get_id_MsgQueue_lcd(void);
 osTimerId_t tim_reset;
 
 // ** funciones del LCD ** // 
- void LCD_Reset(void);
- void LCD_init(void);
- void LCD_update(void);
- void dataToBuffer(char data_L1[32], char data_L2[32]);
+static void LCD_Reset(void);
+static void LCD_init(void);
+static void LCD_update(void);
+static void dataToBuffer(char data_L1[32], char data_L2[32]);
    
 static void LCD_wr_data(unsigned char data);
 static void LCD_wr_cmd(unsigned char cmd);

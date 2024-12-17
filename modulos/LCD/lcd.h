@@ -17,9 +17,9 @@ typedef struct{
 int init_Th_lcd(void);
 osMessageQueueId_t get_id_MsgQueue_lcd(void);
 
- void LCD_Reset(void);
- void LCD_init(void);
- void LCD_update(void);
- void dataToBuffer(char data_L1[32], char data_L2[32]);
+static void LCD_Reset(void);
+static void LCD_init(void);
+static void LCD_update(void);
+static void dataToBuffer(char data_L1[32], char data_L2[32]);
 
 #endif
